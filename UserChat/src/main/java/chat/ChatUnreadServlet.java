@@ -21,6 +21,7 @@ public class ChatUnreadServlet extends HttpServlet {
 		String userID = request.getParameter("userID");
 		if (userID == null || userID.equals("")) {
 			response.getWriter().write("0");
+			
 		} else {
 			userID = URLDecoder.decode(userID, "UTF-8");
 			response.getWriter().write(new ChatDAO().getAllUnreadChat(userID) + "");

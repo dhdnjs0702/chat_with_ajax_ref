@@ -150,7 +150,6 @@ DataSource dataSource;
 	public int readChat(String fromID, String toID) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
 		String SQL = "UPDATE CHAT SET chatRead = 1 WHERE (fromID = ? AND toID = ?)";
 		try {
 			conn =dataSource.getConnection();
@@ -162,7 +161,6 @@ DataSource dataSource;
 			e.printStackTrace();
 		}finally {
 			try {
-				if(rs != null) rs.close();
 				if(conn != null) conn.close();
 				if(pstmt != null) pstmt.close();
 			}catch(Exception e){
@@ -262,7 +260,7 @@ DataSource dataSource;
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		String SQL = "SELECT COUNT(chatID) FROM CHAT WHERE toID = ? AND toID = ? AND chatRead = 0";
+		String SQL = "SELECT COUNT(chatID) FROM CHAT WHERE fromID = ? AND toID = ? AND chatRead = 0";
 		try {
 			conn =dataSource.getConnection();
 			pstmt = conn.prepareStatement(SQL);

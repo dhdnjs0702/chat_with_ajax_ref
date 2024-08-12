@@ -11,10 +11,13 @@
 				System.out.println("userID: " + userID);
 			}
 			String toID = null;
-			if(request.getParameter("toID") != null){
-				toID = (String) request.getParameter("toID");
-				System.out.println("toID: " + toID);
-			}
+            if (request.getParameter("toID") != null) {
+                toID = request.getParameter("toID");
+                toID = URLDecoder.decode(toID, "UTF-8");
+            }
+            System.out.println("Decoded toID: " + toID);
+            System.out.println("userID: " + userID);
+            System.out.println("==== chat.jsp 파라미터 로그 끝 ====");
 			if(userID == null){
 				session.setAttribute("messageType", "오류 메시지");
 				session.setAttribute("messageContent", "현재 로그인이 되어 있지 않습니다.");
@@ -27,14 +30,13 @@
 				response.sendRedirect("index.jsp");
 				return;
 			}
-			String decodedToID = URLDecoder.decode(toID, "UTF-8");
-			System.out.println("Decoded toID: " + decodedToID);
-			if(userID.trim().equals(decodedToID.trim())){
-			    session.setAttribute("messageType", "오류 메시지");
-			    session.setAttribute("messageContent", "자기 자신에게 쪽지를 보낼 수 없습니다.");
-			    response.sendRedirect("index.jsp");
-			    return;
-			}
+			
+			if (userID.equals(toID)) {
+                session.setAttribute("messageType", "오류 메시지");
+                session.setAttribute("messageContent", "자기 자신에게 쪽지를 보낼 수 없습니다.");
+                response.sendRedirect("index.jsp");
+                return;
+            }
 		%>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -57,9 +59,9 @@
 			type: "POST",
 			url: "./chatSubmitServlet",
 			data: {
-				fromID: encodeURIComponent(fromID),
-				toID: encodeURIComponent(toID),
-				chatContent: encodeURIComponent(chatContent),
+				fromID: fromID,
+	            toID: toID,
+	            chatContent: encodeURIComponent(chatContent),
 			},
 			success: function(result){
 				if(result == 1){
@@ -74,38 +76,44 @@
 		$('#chatContent').val('');
 	}
 	var lastID = 0;
-	function chatListFunction(type){
-		var fromID = '<%= userID%>';
-		var toID = '<%= toID %>';
-		$.ajax({
-			type: "POST",
-			url: "./chatListServlet",
-			data: {
-				fromID: encodeURIComponent(fromID),
-				toID: encodeURIComponent(toID),
-				listType: type
-			},
-			success: function(data){
-				console.log("AJAX response received:", data); //디버깅
-				if(data == "")return;
-				var parsed = JSON.parse(data);
-				var result = parsed.result;
-				for(var i=0; i<result.length; i++){
+
+	function chatListFunction(type) {
+	    var fromID = '<%= userID %>';
+	    var toID = '<%= toID %>';
+	    $.ajax({
+	        type: "POST",
+	        url: "./chatListServlet",
+	        data: {
+	            fromID: encodeURIComponent(fromID),
+	            toID: encodeURIComponent(toID),
+	            listType: type
+	        },
+	        success: function(data) {
+	            console.log("AJAX response received:", data); // 디버깅
+	            if (data == "") return;
+	            var parsed = JSON.parse(data);
+	            var result = parsed.result;
+
+	            for (var i = 0; i < result.length; i++) {
 	                var chatName = result[i][0].value;
 	                var chatContent = result[i][2].value;
 	                var chatTime = result[i][3].value;
 
+	                // HTML 엔터티(&nbsp; 등)을 제거하고 공백을 제거
+	                chatName = chatName.replace(/&nbsp;/g, '').trim();
+
 	                // 메시지 발신자가 현재 사용자인 경우 '나'로 표시
-	                if (chatName.trim() === fromID.trim()) {
+	                if (chatName === fromID) {
 	                    chatName = '나';
 	                }
-	                
+
 	                addChat(chatName, chatContent, chatTime);
 	            }
+
 	            lastID = Number(parsed.last);
 	        },
 	        error: function(jqXHR, textStatus, errorThrown) {
-	            console.error("AJAX error:", textStatus, errorThrown); //디버깅
+	            console.error("AJAX error:", textStatus, errorThrown); // 디버깅
 	        }
 	    });
 	}
@@ -288,8 +296,8 @@
 		%>
 		<script type="text/javascript">
 		$(document).ready(function(){
-			console.log("userID: <%= userID %>");
-		    console.log("toID: <%= toID %>");
+			var toID = '<%= toID %>';
+		    console.log("Loaded chat with toID:", toID); // 디버깅 로그 추가
 			getUnread();
 			chatListFunction('0');
 			getInfiniteChat();

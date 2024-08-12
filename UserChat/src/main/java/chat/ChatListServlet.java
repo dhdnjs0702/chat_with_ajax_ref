@@ -27,11 +27,14 @@ public class ChatListServlet extends HttpServlet {
 		if(fromID == null || fromID.equals("") || toID == null || toID.equals("")
 				|| listType == null || listType.equals("")) {
 			response.getWriter().write("");
+			System.out.println("ChatListServlet called with parameters: fromID=" + fromID + ", toID=" + toID + ", listType=" + listType);
 		}
-		else if(listType.equals("ten"))response.getWriter().write(getTen(URLDecoder.decode(fromID, "UTF-8"), URLDecoder.decode(toID, "UTF-8")));
-		else {
+		else if(listType.equals("ten")) {response.getWriter().write(getTen(URLDecoder.decode(fromID, "UTF-8"), URLDecoder.decode(toID, "UTF-8")));
+		System.out.println("ChatListServlet called with parameters: fromID=" + fromID + ", toID=" + toID + ", listType=" + listType);
+		}else {
 			try {
 			response.getWriter().write(getID(URLDecoder.decode(fromID, "UTF-8"), URLDecoder.decode(toID, "UTF-8"), listType));
+			System.out.println("ChatListServlet called with parameters: fromID=" + fromID + ", toID=" + toID + ", listType=" + listType);
 		}catch(Exception e) {
 			response.getWriter().write("");
 		}

@@ -60,25 +60,25 @@
 				var parsed = JSON.parse(data);
 				var result = parsed.result;
 				for(var i = 0; i < result.length; i++){
-					if(result[i][0].value == userID){
-						result[i][0].value = result[i][1].value;
-					} else {
-						result[i][2].value = result[i][0].value;
-					}
+	                var toID = (result[i][0].value == userID) ? result[i][1].value : result[i][0].value;
+	                var lastID = (result[i][0].value == userID) ? result[i][1].value : result[i][0].value;
+	                var chatContent = result[i][2].value;
+	                var chatTime = result[i][3].value;
+	                var unread = result[i][4].value;
 					addBox(result[i][0].value, result[i][1].value, result[i][2].value, result[i][3].value, result[i][4].value);
 				}
 			}
 		});
 	}
 	function addBox(lastID, toID, chatContent, chatTime){
-		$('#boxTable').append('<tr onclick="location.href=\'chat.jsp?toID='+encodeURIComponent(toID) + '\'">' +
-				'<td style="width: 150px;"><h5>' + lastID + '</h5></td>' +
-				'<td>' +
-				'<h5>' + chatContent + '</h5>' +
-				'<span class="label label-info">' + unread + '</span>' +
-				'<div class="pull-right">' + chatTime + '</div>' +
-				'</td>' + 
-				'</tr>');
+		 console.log("Adding box for toID:", toID);
+	    $('#boxTable').append('<tr onclick="location.href=\'chat.jsp?toID='+ encodeURIComponent(toID) + '\'">' +
+	        '<td style="width: 150px;"><h5>' + lastID + '</h5></td>' +
+	        '<td>' +
+	        '<h5>' + chatContent + '</h5>' +
+	        '<div class="pull-right">' + chatTime + '</div>' +
+	        '</td>' + 
+	        '</tr>');
 	}
 	function getInfiniteBox(){
 		setInterval(function(){

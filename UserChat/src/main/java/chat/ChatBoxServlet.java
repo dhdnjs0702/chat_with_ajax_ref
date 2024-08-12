@@ -33,27 +33,30 @@ public class ChatBoxServlet extends HttpServlet {
 	}	
 	
 	public String getBox(String userID) {
-		StringBuffer result = new StringBuffer("");
-		result.append("{\"result\":[");
-		ChatDAO chatDAO =new ChatDAO();
-		ArrayList<ChatDTO> chatList = chatDAO.getBox(userID);
-		if(chatList == null ||chatList.size() == 0) return "";
-		for(int i=chatList.size() - 1; i >= 0; i--) {
-			String unread = "";
-			if(userID.equals(chatList.get(i).getToID())) {
-				unread = chatDAO.getUnreadChat(chatList.get(i).getFromID(), userID) + "";
-				if(unread.equals("0")) unread = "";
-			}
-			result.append("[{\"value\":\""+chatList.get(i).getFromID()+"\"},");
-			result.append("{\"value\":\""+chatList.get(i).getToID()+"\"},");
-			result.append("{\"value\":\""+chatList.get(i).getChatContent()+"\"},");
-			result.append("{\"value\":\""+chatList.get(i).getChatTime()+"\"},");
-			result.append("{\"value\":\""+ unread  +"\"}]");
-			if(i != 0 ) result.append(",");
-		}
-		result.append("], \"last\":\""+chatList.get(chatList.size() -1).getChatID() + "\"}");
-		return result.toString();
-	}
+        StringBuffer result = new StringBuffer("");
+        result.append("{\"result\":[");
+        ChatDAO chatDAO = new ChatDAO();
+        ArrayList<ChatDTO> chatList = chatDAO.getBox(userID);
+        if(chatList == null || chatList.size() == 0) return "";
+        for(int i = chatList.size() - 1; i >= 0; i--) {
+            String unread = "";
+            String otherID = userID.equals(chatList.get(i).getToID()) ? 
+                             chatList.get(i).getFromID() : chatList.get(i).getToID();
+            
+            if(userID.equals(chatList.get(i).getToID())) {
+                unread = chatDAO.getUnreadChat(chatList.get(i).getFromID(), userID) + "";
+                if(unread.equals("0")) unread = "";
+            }
+            
+            result.append("[{\"value\":\"" + otherID + "\"},"); // 상대방 ID
+            result.append("{\"value\":\"" + otherID + "\"},"); // toID로 사용될 값
+            result.append("{\"value\":\"" + chatList.get(i).getChatContent() + "\"},");
+            result.append("{\"value\":\"" + chatList.get(i).getChatTime() + "\"},");
+            result.append("{\"value\":\"" + unread + "\"}]");
+            if(i != 0) result.append(",");
+        }
+        result.append("], \"last\":\"" + chatList.get(chatList.size() - 1).getChatID() + "\"}");
+        return result.toString();
+    }
 }
-
 
